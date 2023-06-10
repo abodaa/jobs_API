@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -30,6 +32,24 @@ UserSchema.pre("save", async function () {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+// Use Schema method to sign/create a JWT
+
+UserSchema.methods.createJWT = function () {
+  return jwt.sign(
+    { userId: this._id, name: this.username },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_TOKENLIFETIME,
+    }
+  );
+};
+
+// Compare Password
+UserSchema.methods.comparePassword = async function (userPassword) {
+  const isMatched = await bcrypt.compare(userPassword, this.password);
+  return isMatched;
+};
 
 // 'Users' here is the collection name we are creating
 
