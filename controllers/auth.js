@@ -2,7 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const User = require("../models/User");
 // const bcrypt = require('bcryptjs')
 
-// ******** LOGIN *********** //
+// ******** REGISTER *********** //
 
 const register = async (req, res) => {
   // const { username, email, password } = req.body;
@@ -20,6 +20,7 @@ const register = async (req, res) => {
 
   const user = await User.create({ ...req.body });
   const token = user.createJWT();
+  
   res
     .status(StatusCodes.CREATED)
     .json({ user: { name: user.username }, token });
@@ -37,7 +38,7 @@ const login = async (req, res) => {
     .json({ msg: "Please provide email and password" });
   }
   
-  // Check if user exists (if email is already registered)
+  // Check if user exists (if email is registered)
   const user = await User.findOne({ email });
   if (!user) {
     return res
